@@ -1,0 +1,32 @@
+name: Create ISO for autoinstall
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  iso-creation:
+    name: Iso Creation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install genisoimage
+      run: sudo apt update && sudo apt install genisoimage -y
+
+    - name: Create autoinstall iso
+      run: genisoimage  -output seed.iso -volid cidata -joliet -rock user-data meta-data
+
+    - name: Archive file
+      uses: actions/upload-artifact@v4
+      with:
+        name: autoinstall-artifact
+        compression-level: 0
+        path: seed.iso
+ 

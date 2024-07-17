@@ -1,0 +1,38 @@
+#cloud-config
+autoinstall:
+  version: 1
+  apt:
+    mirror-selection:
+      primary:
+      - uri: https://ftp.uni-stuttgart.de/ubuntu/
+    preserve_sources_list: true
+  source:
+    id: ubuntu-server-minimal
+    search_drivers: true
+  kernel:
+    package: linux-generic
+  keyboard:
+    layout: de
+    variant: nodeadkeys
+  locale: en_US.UTF-8
+  identity:
+    realname: 'Temp User'
+    username: ubuntu
+    password: '!'
+    hostname: ubuntu
+  ssh:
+    allow-pw: false
+    install-server: true
+  updates: all
+  packages:
+  - open-vm-tools
+  - wget
+  - less
+  - vim
+  shutdown: poweroff
+  user-data:
+    runcmd:
+      - echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEGs+/3/E1VLAyCweFIQNgfaMYWZV4OEJG2Cj0obrBdY' > /root/.ssh/authorized_keys
+      - userdel -r ubuntu
+      - rm -f /etc/update-motd.d/60-unminimize && rm -f /etc/update-motd.d/10-help-text
+      - printf '#!/bin/sh -e\n#\n# helper for update-motd\n\nif [ -f /var/run/reboot-required ]; then\n    echo "*** System restart required ***"\n    cat /var/run/reboot-required.pkgs\nfi\n' > /etc/update-motd.d/99-reboot-req && sudo chmod 755 /etc/update-motd.d/99-reboot-req
